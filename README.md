@@ -1,7 +1,7 @@
 
-# Flare Olympics Prediction Showcase
+# Olympics Prediction Showcase
 
-Welcome to Flare Olympics Prediction, an innovative on-chain prediction system utilizing Flare Oracle Data connector to enhance your prediction experience with Olympic sports data.
+Welcome to Olympics Prediction, an innovative on-chain prediction system utilizing Flare Oracle Data connector to enhance your prediction experience with Olympic sports data.
 
 This showcase was developed in cooperation with:
 
@@ -21,7 +21,7 @@ The complete guide can be found [here](https://github.com/kalmiallc/oi-flare-pre
 
 If you are interested in own implementation, check the instructions [here](INSTRUCTIONS.md)
 
-## What is Flare Olympics Prediction Showcase?
+## What is Olympics Prediction Showcase?
 
 **Note**: This application is intended for testing purposes only. There is no real business value behind.
 
