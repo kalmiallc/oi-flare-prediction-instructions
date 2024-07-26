@@ -1,53 +1,90 @@
 
-# Setting Up OIBetShowcase
-Follow these steps to set up OIBetShowcase:
+# Flare Olympics Prediction Showcase
 
-### 1. Deploy the OIToken Contract
-Run the script: scripts/deployOIToken. This contract will be used for placing bets and taking profits.
+Welcome to Flare Olympics Prediction, an innovative on-chain prediction system utilizing Flare Oracle Data connector to enhance your prediction experience with Olympic sports data.
 
-### 2. Deploy the OIBetShowcase Contract
-Run the script: scripts/deployBetContract. Before deploying this contract, ensure you correctly set the following addresses:
+This showcase was developed in cooperation with:
 
-- OI Token Address: Address of the OIToken contract deployed in step 1.
-- Match Result Verification Address:
-    - Coston: 0xAa6Cf267D26121D4176413D80e0e851558aa6736
-    - Songbird: 0x97C72b91F953cC6142ebA598fa376B80fbACA1C2
+- Kalmia: https://kalmia.si/
+- AF Labs: https://aflabs.si/
 
-### 3. Approve Bet Contract as Spender
-Before adding events, approve the bet contract to spend the deployer's OI tokens.
+This is an open source project.
 
-### 4. Add Events to the Contract
-Use the script script/createSportEvents to add events with the following parameters:
+The complete showcase consists of four repositories:
 
-- string title: Example: "Men's Group Phase - Group A - Australia vs Spain"
-- string teams: Example: "Australia,Spain"
-- uint256 startTime: Example: 1721980800
-- uint8 gender: Example: 0
-- uint8 sport: Example: 0 (Refer to the Sports struct in the OIBetShowcase contract)
-- string[] choices: Example: ["Australia", "Spain", "Draw"]
-- uint32[] initialVotes: Example: [150, 100, 300]
-- uint256 initialPool: Example: 100000000000000000000 (100 OI tokens)
-- bytes32 _uid: Generated via the generateUID function in OIBetShowcase
+- [Prediction smart contract](https://github.com/kalmiallc/oi-prediction-smartcontract)
+- [Front-end application](https://github.com/kalmiallc/oi-prediction-webapp)
+- [Backend application](https://github.com/kalmiallc/oi-prediction-webapp) which calls the verification provider API for verification
+- [Verification server](https://github.com/kalmiallc/oi-match-attestation-server)
 
-### 5. Place Bets
-Bets can be placed on any game that has not started yet. Once the game begins, betting is closed.
+The complete guide can be found [here](https://github.com/kalmiallc/oi-flare-prediction-instructions)
 
-### 6. Request Match Attestation
-After the game concludes, the backend API requests an attestation for the finished match. The attestation request's body includes:
+If you are interested in own implementation, check the instructions [here](INSTRUCTIONS.md)
 
-- uint256 date: Timestamp of game start
-- uint32 sport: Sport ID
-- uint8 gender: Gender ID
-- string teams: Example: "Australia,Spain"
+## What is Flare Olympics Prediction Showcase?
 
-### 7. Retrieve Attestation Result
-Wait 4-5 minutes for the attestation result. If ready, the attestation proof is available on-chain in the state connector. The backend API retrieves this proof from the Flare API and passes it to the OIBetShowcase contract via the finalizeMatch function.
+**Note**: This application is intended for testing purposes only. There is no real business value behind.
 
-### 8. Finalize Match
-The finalizeMatch function verifies the attestation proof, generates a UID from the request body data, and identifies the corresponding event. If the proof is valid and the event is found, the winner is set.
+Flare Olympics Prediction Showcase is a decentralized sports prediction application designed specifically for the Olympics. Users can place predictions on various team sports events with simple outcomes: win, lose, or draw. This open-source project showcases the powerful capabilities of Flare's advanced features, ensuring that sports results are directly reflected on the blockchain for secure and transparent predictions.
 
-### 9. Claim Winnings
-Users who bet on the winning option can claim their winnings once the winner is set.
+## Key Features
 
-### 10. Handle Cancelled or Postponed Matches
-For cancelled or postponed matches, authorized addresses can call the cancelSportEvent function. Users who bet on such matches can get a refund of their invested amount using the refund function.
+- **User-Friendly Interface**: The frontend is designed for ease of use, allowing you to deposit funds, place predictions, and withdraw winnings efficiently using your wallet credentials.
+- **Flare Data Connector**: This application leverages the Flare Data Connector to fetch Olympic match results from Web2 sources and relay them to the blockchain. The data is verified by Flare's attestation providers, ensuring accuracy and reliability.
+- **Full dApp Integration**: Seamlessly integrates with smart contracts for a decentralized prediction experience, handling all interactions securely on-chain.
+- **Dynamic Prediction Multipliers**: The prediction logic uses dynamic multipliers to ensure fair and balanced payouts based on the pool of predictions.
+
+## How It Works
+
+1. **Place Prediction**: Use your wallet to deposit funds and place prediction on Olympic events.
+2. **Data Verification**: The Flare Data Connector fetches and verifies match results from multiple online sources, processed with the help of OpenAI.
+3. **Secure Payouts**: Verified results are used by the smart contract to manage payouts, ensuring transparency and security.
+
+Key points:
+
+- Predictions can be placed using the OI tokens. Every user can get 500 OI tokens per day. 
+- Predictions can be placed until the match starts. No predictions are allowed once the match has begun.
+- The maximum prediction is 10% of the pool size.
+- Predictions can be claimed after the final results are finalized, which is expected to be approximately 2 hours after the match's expected end time.
+- If the match is canceled, the invested funds can be withdrawn 14 days after the match start time (only supported by the contract).
+
+## Components
+
+To fully set up and run the Flare Olympics Prediction system, the following components need to be in place:
+
+- **Prediction Smart Contract**: Manages all prediction logic and interactions.
+- **Front-End Application**: User interface for placing predictions and managing funds.
+- **Backend Application**: Calls provider API for verification.
+- **Verification Server**: Ensures the integrity of match results data.
+
+## Prediction Logic
+
+The prediction logic operates on dynamic multipliers. Users purchase multiplied amounts (prediction amounts multiplied by the win multiplier). When a prediction is placed, the multiplied amount is stored, guaranteeing the claim amount will be paid when the event concludes.
+
+All multiplied predictions for each game are placed in a prediction pool. The sum of amounts for each choice cannot exceed the total predictions in the pool.
+
+The multiplier is calculated each time a user places a prediction. The number of predictions against the complete pool defines the multiplier factor. The more predictions placed on one choice, the lower the multiplier factor for that choice, and the higher the multiplier factors for other choices.
+
+An initial pool and factors need to be set by the administrator, along with the initial pool of tokens. Each prediction can only be 1/10 of the pool size.
+
+## Flare Data Connector - Results
+
+The results of each match are provided using the [Flare Data Connector](https://flare.network/dataconnector/). The documentation for the connector can be found [here](https://docs.flare.network/tech/state-connector/).
+
+The project provides its own attestation type, the `Match result` attestation type. This attestation type defines how data can be verified by the attestation providers. To identify the match, data is mathed against date,sport,gender and teams.
+
+This attestation is specific to one event (Olympic games) but can be easily extended to other team sports.
+
+A verifier server is implemented for the defined `Match result` attestation type. For this attestation type, the verifier server calls a Web2 API, which returns the match results. If the data aligns with the expected results, it is considered valid. The verifier server is used by the attestation provider. If the verification passes, the data is passed to a voting round and then included in the Merkle tree, which is use to pass the data to the contract.
+
+More developer oriented documentation can be found [here](https://github.com/flare-foundation/songbird-state-connector-protocol/blob/main/README.md)
+
+Flare Olympics Prediction is compatible with both the Coston and Songbird networks, showcasing its flexibility and interoperability.
+
+By utilizing the Flare Data Connector, Flare Olympics Prediction demonstrates how decentralized applications can effectively use external data to provide a seamless and trustworthy prediction experience on the blockchain.
+
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+
