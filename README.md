@@ -1,77 +1,53 @@
-## Flare Hardhat Starter Kit
 
-**IMPORTANT!!**
-The supporting library uses Openzeppelin version `4.9.3`, be careful to use the documentation and examples from that library version.
+# Setting Up OIBetShowcase
+Follow these steps to set up OIBetShowcase:
 
-### Getting started
+### 1. Deploy the OIToken Contract
+Run the script: scripts/deployOIToken. This contract will be used for placing bets and taking profits.
 
-If you are new to Hardhat please check the [Hardhat getting started doc](https://hardhat.org/hardhat-runner/docs/getting-started#overview)
+### 2. Deploy the OIBetShowcase Contract
+Run the script: scripts/deployBetContract. Before deploying this contract, ensure you correctly set the following addresses:
 
-1. Clone and install dependencies:
+- OI Token Address: Address of the OIToken contract deployed in step 1.
+- Match Result Verification Address:
+    - Coston: 0xAa6Cf267D26121D4176413D80e0e851558aa6736
+    - Songbird: 0x97C72b91F953cC6142ebA598fa376B80fbACA1C2
 
-   ```console
-   git clone https://github.com/flare-foundation/flare-hardhat-starter.git
-   cd flare-hardhat-starter
-   ```
+### 3. Approve Bet Contract as Spender
+Before adding events, approve the bet contract to spend the deployer's OI tokens.
 
-   and then run:
+### 4. Add Events to the Contract
+Use the script script/createSportEvents to add events with the following parameters:
 
-   ```console
-   yarn
-   ```
+- string title: Example: "Men's Group Phase - Group A - Australia vs Spain"
+- string teams: Example: "Australia,Spain"
+- uint256 startTime: Example: 1721980800
+- uint8 gender: Example: 0
+- uint8 sport: Example: 0 (Refer to the Sports struct in the OIBetShowcase contract)
+- string[] choices: Example: ["Australia", "Spain", "Draw"]
+- uint32[] initialVotes: Example: [150, 100, 300]
+- uint256 initialPool: Example: 100000000000000000000 (100 OI tokens)
+- bytes32 _uid: Generated via the generateUID function in OIBetShowcase
 
-   or
+### 5. Place Bets
+Bets can be placed on any game that has not started yet. Once the game begins, betting is closed.
 
-   ```console
-   npm install
-   ```
+### 6. Request Match Attestation
+After the game concludes, the backend API requests an attestation for the finished match. The attestation request's body includes:
 
-2. Set up `.env` file
+- uint256 date: Timestamp of game start
+- uint32 sport: Sport ID
+- uint8 gender: Gender ID
+- string teams: Example: "Australia,Spain"
 
-   ```console
-   mv .env.example .env
-   ```
+### 7. Retrieve Attestation Result
+Wait 4-5 minutes for the attestation result. If ready, the attestation proof is available on-chain in the state connector. The backend API retrieves this proof from the Flare API and passes it to the OIBetShowcase contract via the finalizeMatch function.
 
-3. Change the `PRIVATE_KEY` in the `.env` file to yours
+### 8. Finalize Match
+The finalizeMatch function verifies the attestation proof, generates a UID from the request body data, and identifies the corresponding event. If the proof is valid and the event is found, the winner is set.
 
-4. Compile the project
+### 9. Claim Winnings
+Users who bet on the winning option can claim their winnings once the winner is set.
 
-    ```console
-    yarn hardhat compile
-    ```
-
-    or
-
-    ```console
-    npx hardhat compile
-    ```
-
-    This will compile all `.sol` files in your `/contracts` folder. It will also generate artifacts that will be needed for testing. Contracts `Imports.sol` import MockContracts and Flare related mocks, thus enabling mocking of the contracts from typescript.
-
-5. Run Tests
-
-    ```console
-    yarn hardhat test
-    ```
-
-    or
-
-    ```console
-    npx hardhat test
-    ```
-
-6. Deploy
-
-    Check the `hardhat.config.ts` file, where you define which networks you want to interact with. Flare mainnet & test network details are already added in that file.
-
-    Make sure that you have added API Keys in the `.env` file
-
-   ```console
-   npx hardhat run scripts/tryDeployment.ts
-   ```
-
-## Resources
-
-- [Flare Dev Docs](https://docs.flare.network/dev/)
-- [Hardhat Docs](https://hardhat.org/docs)
-
+### 10. Handle Cancelled or Postponed Matches
+For cancelled or postponed matches, authorized addresses can call the cancelSportEvent function. Users who bet on such matches can get a refund of their invested amount using the refund function.
