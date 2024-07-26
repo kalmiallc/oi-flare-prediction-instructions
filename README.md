@@ -14,7 +14,7 @@ The complete showcase consists of four repositories:
 
 - [Prediction smart contract](https://github.com/kalmiallc/oi-prediction-smartcontract)
 - [Front-end application](https://github.com/kalmiallc/oi-prediction-webapp)
-- [Backend application](https://github.com/kalmiallc/oi-prediction-webapp) which calls the verification provider API for verification
+- [Backend application](https://github.com/kalmiallc/oi-prediction-backend) which calls the verification provider API for verification
 - [Verification server](https://github.com/kalmiallc/oi-match-attestation-server)
 
 The complete guide can be found [here](https://github.com/kalmiallc/oi-flare-prediction-instructions)
